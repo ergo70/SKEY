@@ -1,0 +1,2 @@
+gcc -Wall -m64 -fPIC -DPIC -shared -rdynamic -o pam_skey.so pam_skey.c -lmhash
+
