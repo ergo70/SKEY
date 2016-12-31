@@ -31,8 +31,8 @@
 #define WARN_TOKENS 10
 #define BLOCKSZ 4
 
-static inline void log_message(int priority, const pam_handle_t * const pamh,
-                               const char * const format, ...)
+static  void log_message(int priority, const pam_handle_t * const pamh,
+                         const char * const format, ...)
 {
     char *service = NULL;
     if (pamh)
@@ -59,7 +59,7 @@ static inline void log_message(int priority, const pam_handle_t * const pamh,
     }
 }
 
-static inline int setuser(int uid)
+static  int setuser(int uid)
 {
     // The semantics for setfsuid() are a little unusual. On success, the
     // previous user id is returned. On failure, the current user id is returned.
@@ -89,8 +89,8 @@ static int setgroup(int gid)
     return old_gid;
 }
 
-static inline int drop_privileges(const pam_handle_t * const pamh, const char * const username, uid_t uid,
-                                  uid_t *old_uid, gid_t  *old_gid)
+static  int drop_privileges(const pam_handle_t * const pamh, const char * const username, uid_t uid,
+                            uid_t *old_uid, gid_t  *old_gid)
 {
     // Try to become the new user. This might be necessary for NFS mounted home
     // directories.
@@ -158,9 +158,9 @@ static inline int drop_privileges(const pam_handle_t * const pamh, const char * 
     return 0;
 }
 
-static inline int converse(const pam_handle_t * const pamh, int nargs,
-                           const struct pam_message **message,
-                           struct pam_response **response)
+static  int converse(const pam_handle_t * const pamh, int nargs,
+                     const struct pam_message **message,
+                     struct pam_response **response)
 {
     struct pam_conv *conv;
     int retval = pam_get_item(pamh, PAM_CONV, (void *)&conv);
@@ -171,8 +171,8 @@ static inline int converse(const pam_handle_t * const pamh, int nargs,
     return conv->conv(nargs, message, response, conv->appdata_ptr);
 }
 
-static inline char *request_pass(const pam_handle_t * const pamh, int echocode,
-                                 const char * const prompt)
+static  char *request_pass(const pam_handle_t * const pamh, int echocode,
+                           const char * const prompt)
 {
     // Query user for verification code
     const struct pam_message msg = { .msg_style = echocode, .msg = prompt};
@@ -207,7 +207,7 @@ static inline char *request_pass(const pam_handle_t * const pamh, int echocode,
     return ret;
 }
 
-static inline char *normalize(char * const pwd)
+static  char *normalize(char * const pwd)
 {
     memmove(&pwd[4], &pwd[5], BLOCKSZ*sizeof(char));
     memmove(&pwd[8], &pwd[10], BLOCKSZ*sizeof(char));
@@ -222,7 +222,7 @@ static inline char *normalize(char * const pwd)
     return pwd;
 }
 
-static inline char* do_hash(const char * const p, const char * const pwd, char * const password_hash)
+static  char* do_hash(const char * const p, const char * const pwd, char * const password_hash)
 {
     char hb[65];
     MHASH hc = NULL;
