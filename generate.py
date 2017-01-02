@@ -47,6 +47,7 @@ for n in xrange(1, 999999):
     next_hash = MHASH(MHASH_RIPEMD128, p + next_hash).hexdigest()
 
 for i in xrange(0, size):
+    sys.stderr.write('#')
     hashes.append('-'.join(next_hash[i:i+4] for i in xrange(0, len(next_hash), 4)))
     for n in xrange(1, 1000000):
         next_hash = MHASH(MHASH_RIPEMD128, p + next_hash).hexdigest()
@@ -64,6 +65,8 @@ with open(CONFIG, 'w') as last_seen:
 chmod(CONFIG, 0400)    
 
 hashes.reverse()
+
+sys.stderr.write('\n')
 
 print(getfqdn()+'\n')    
     
