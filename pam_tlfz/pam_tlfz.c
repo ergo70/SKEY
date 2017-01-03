@@ -38,7 +38,7 @@
 #include <security/pam_modules.h>
 
 #define MODULE_NAME "pam_skey"
-#define SECRET "%s/.skey"
+#define SECRET "skey"
 #define HASHSZ_BYTES 16
 #define HASHSZ_TEXT 32
 #define BUFSZ 1024
@@ -366,7 +366,7 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
 
     temp_pw = NULL;
 
-    snp_ret = snprintf(checkfile, sizeof(checkfile), SECRET, pw->pw_dir);
+    snp_ret = snprintf(checkfile, sizeof(checkfile), "%s/."SECRET, pw->pw_dir);
 
     if (snp_ret >= sizeof(checkfile))
     {
