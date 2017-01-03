@@ -240,27 +240,27 @@ static  char *normalize(char * const pwd)
 
 static  char* do_hash(const char * const p, const char * const pwd, char * const password_hash)
 {
-    char hb[65];
+    char hb[33];
     MHASH hc = NULL;
     unsigned char digest[HASHSZ_BYTES];
 
     memset(hb,0x0, sizeof(hb));
     memset(digest,0x0, sizeof(digest));
 
-    memcpy(&hb[0],p, HASHSZ_TEXT);
+    //memcpy(&hb[0],p, HASHSZ_TEXT);
 
-    memcpy(&hb[HASHSZ_TEXT],pwd, HASHSZ_TEXT);
+    memcpy(&hb[0],pwd, HASHSZ_TEXT);
 
-    if (strlen(hb) != 2*HASHSZ_TEXT)
+    if (strlen(hb) != HASHSZ_TEXT)
     {
         return(NULL);
     }
 
-    hc = mhash_init(MHASH_RIPEMD128);
+    hc = mhash_hmac_init(MHASH_RIPEMD128, (void *) p, HASHSZ_TEXT, mhash_get_hash_pblock(MHASH_RIPEMD128));
 
     mhash(hc, hb, strlen((const char *)hb));
 
-    mhash_deinit(hc, digest);
+    mhash_hmac_deinit(hc, digest);
 
     memset(password_hash, 0x0, HASHSZ_TEXT+1);
 
@@ -271,22 +271,22 @@ static  char* do_hash(const char * const p, const char * const pwd, char * const
 
     for (int i=0; i<999998; i++)
     {
-        hc = mhash_init(MHASH_RIPEMD128);
+        hc = mhash_hmac_init(MHASH_RIPEMD128, (void *) p, HASHSZ_TEXT, mhash_get_hash_pblock(MHASH_RIPEMD128));
 
         memset(hb,0x0, sizeof(hb));
 
-        memcpy(&hb[0],p, HASHSZ_TEXT);
+        //memcpy(&hb[0],p, HASHSZ_TEXT);
 
-        memcpy(&hb[HASHSZ_TEXT],password_hash, HASHSZ_TEXT);
+        memcpy(&hb[0],password_hash, HASHSZ_TEXT);
 
-        if (strlen(hb) != 2*HASHSZ_TEXT)
+        if (strlen(hb) != HASHSZ_TEXT)
         {
             return(NULL);
         }
 
         mhash(hc, hb, strlen((const char *)hb));
 
-        mhash_deinit(hc, digest);
+        mhash_hmac_deinit(hc, digest);
 
         memset(password_hash, 0x0, HASHSZ_TEXT+1);
 

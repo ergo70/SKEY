@@ -19,7 +19,7 @@
 """
 
 import sys
-from mhash import MHASH, MHASH_RIPEMD128
+from mhash import HMAC, MHASH_RIPEMD128
 from os import path, chmod
 
 CONFIG = path.expanduser("~") + '/.skey'
@@ -44,10 +44,10 @@ if c == 0:
 if c < 10:
     print 'Only ' + str(c) + ' passwords left' 
     
-password_hash = MHASH(MHASH_RIPEMD128, p + password).hexdigest()    
+password_hash = HMAC(MHASH_RIPEMD128, p , password).hexdigest()    
 
 for n in xrange(1, 999999):
-    password_hash = MHASH(MHASH_RIPEMD128, p + password_hash).hexdigest()
+    password_hash = HMAC(MHASH_RIPEMD128, p , password_hash).hexdigest()
 
 if next_hash == password_hash:
     c-=1

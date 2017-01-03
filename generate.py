@@ -19,7 +19,7 @@
 """
 
 import sys
-from mhash import MHASH, MHASH_RIPEMD128
+from mhash import HMAC, MHASH_RIPEMD128
 from os import urandom, path, chmod
 from socket import getfqdn
 
@@ -41,16 +41,16 @@ hashes = []
 iv = urandom(16).encode('hex')
 p = urandom(16).encode('hex')
 
-next_hash = MHASH(MHASH_RIPEMD128, p + iv).hexdigest()
+next_hash = HMAC(MHASH_RIPEMD128, p, iv).hexdigest()
 
 for n in xrange(1, 999999):
-    next_hash = MHASH(MHASH_RIPEMD128, p + next_hash).hexdigest()
+    next_hash = HMAC(MHASH_RIPEMD128, p, next_hash).hexdigest()
 
 for i in xrange(0, size):
     sys.stderr.write('#')
     hashes.append('-'.join(next_hash[i:i+4] for i in xrange(0, len(next_hash), 4)))
     for n in xrange(1, 1000000):
-        next_hash = MHASH(MHASH_RIPEMD128, p + next_hash).hexdigest()
+        next_hash = HMAC(MHASH_RIPEMD128, p, next_hash).hexdigest()
 
 try:   
     chmod(CONFIG, 0200)
