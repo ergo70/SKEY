@@ -1,2 +1,2 @@
-gcc -O2 -Wall -fPIC -DPIC -shared -rdynamic -o pam_tlfz.so pam_tlfz.c -lmhash
+gcc -O0 -fno-builtin-memset -Wall -fPIC -DPIC -shared -rdynamic -o pam_tlfz.so pam_tlfz.c -lmhash
 
