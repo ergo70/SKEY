@@ -33,6 +33,7 @@
 #include <syslog.h>
 #include <sys/stat.h>
 #include <sys/fsuid.h>
+#include <sys/mman.h>
 /* Include PAM headers */
 #include <security/pam_appl.h>
 #include <security/pam_modules.h>
@@ -408,6 +409,11 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
     {
         log_message(LOG_EMERG, pamh, "No S/KEY tokens left!");
         return(PAM_AUTH_ERR);
+    }
+
+    if (mlock(p, HASHSZ_TEXT) != 0)
+    {
+        log_message(LOG_WARNING, pamh, "Failed to lock memory!");
     }
 
     memset(p,0x0,sizeof(p));
