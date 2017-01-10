@@ -35,6 +35,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// s_memzero according to 771-BSI
 
 /* Define which PAM interfaces we provide */
 //#define PAM_SM_ACCOUNT
@@ -69,6 +71,12 @@
 #define MAXTOKENS 50
 #define WARN_TOKENS 10
 #define BLOCKSZ 4
+
+static void s_memzero(void * const v, size_t n)
+{
+    volatile char *p = v;
+    while (n--) *p++ = 0x0;
+}
 
 static  void log_message(int priority, const pam_handle_t * const pamh,
                          const char * const format, ...)
@@ -256,7 +264,7 @@ static  char *normalize(char * const pwd)
     memmove(&pwd[24], &pwd[30], BLOCKSZ*sizeof(char));
     memmove(&pwd[28], &pwd[35], BLOCKSZ*sizeof(char));
 
-    memset(&pwd[32],0x0,7);
+    s_memzero(&pwd[32],7);
 
     return pwd;
 }
@@ -267,8 +275,8 @@ static  char* do_hash(const char * const p, const char * const pwd, char * const
     MHASH hc = NULL;
     unsigned char digest[HASHSZ_BYTES];
 
-    memset(hb,0x0, sizeof(hb));
-    memset(digest,0x0, sizeof(digest));
+    s_memzero(hb, sizeof(hb));
+    s_memzero(digest, sizeof(digest));
 
     //memcpy(&hb[0],p, HASHSZ_TEXT);
 
@@ -285,7 +293,7 @@ static  char* do_hash(const char * const p, const char * const pwd, char * const
 
     mhash_hmac_deinit(hc, digest);
 
-    memset(password_hash, 0x0, HASHSZ_TEXT+1);
+    s_memzero(password_hash, HASHSZ_TEXT+1);
 
     for (int i=0; i<HASHSZ_BYTES; i++)
     {
@@ -296,7 +304,7 @@ static  char* do_hash(const char * const p, const char * const pwd, char * const
     {
         hc = mhash_hmac_init(MHASH_RIPEMD128, (void *) p, HASHSZ_TEXT, mhash_get_hash_pblock(MHASH_RIPEMD128));
 
-        memset(hb,0x0, sizeof(hb));
+        s_memzero(hb, sizeof(hb));
 
         //memcpy(&hb[0],p, HASHSZ_TEXT);
 
@@ -311,7 +319,7 @@ static  char* do_hash(const char * const p, const char * const pwd, char * const
 
         mhash_hmac_deinit(hc, digest);
 
-        memset(password_hash, 0x0, HASHSZ_TEXT+1);
+        s_memzero(password_hash, HASHSZ_TEXT+1);
 
         for (int j=0; j<HASHSZ_BYTES; j++)
         {
@@ -378,7 +386,7 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
         return(PAM_IGNORE);
     }
 
-    memset(pwd,0x0,sizeof(pwd));
+    s_memzero(pwd,sizeof(pwd));
 
     temp_pw = request_pass(pamh, PAM_PROMPT_ECHO_OFF, prompt);
 
@@ -389,7 +397,7 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
 
     strncpy(pwd, temp_pw, sizeof(pwd));
 
-    memset(temp_pw,0x0,strlen(temp_pw));
+    s_memzero(temp_pw,strlen(temp_pw));
 
     free(temp_pw);
 
@@ -408,7 +416,7 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
         return(PAM_IGNORE);
     }
 
-    memset(buffer,0x0,sizeof(buffer));
+    s_memzero(buffer,sizeof(buffer));
 
     if (fgets(buffer, sizeof(buffer), fp) == NULL)
     {
@@ -439,7 +447,7 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
         return(PAM_AUTH_ERR);
     }
 
-    memset(p,0x0,sizeof(p));
+    s_memzero(p,sizeof(p));
 
     memcpy(p,&buffer[1],HASHSZ_TEXT);
 
@@ -448,7 +456,7 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
         return(PAM_IGNORE);
     }
 
-    memset(next_hash,0x0,sizeof(next_hash));
+    s_memzero(next_hash,sizeof(next_hash));
 
     memcpy(next_hash,&buffer[33],HASHSZ_TEXT);
 
@@ -504,7 +512,7 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
         return(PAM_IGNORE);
     }
 
-    memset(pwd,0x0,sizeof(pwd));
+    s_memzero(pwd,sizeof(pwd));
 
     if (fclose(fp) != 0)
     {
